@@ -4288,6 +4288,7 @@ sort: original	#按 字詞  排序 輸入original,以 字詞頻  排序 輸入 b
 嵈	~eex
 翪	~eexp
 酻	~eez
+ー	ee,
 ─	~ee,
 靈	ef
 灵	~ef
@@ -29958,7 +29959,6 @@ $	~,dol
 Ⅰ	~,e
 ㄝ	~,e
 ㄜ	~,e
-ー	~,e
 –	~,e
 ε	~,e
 Σ	~,e
