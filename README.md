@@ -21,7 +21,8 @@
 	* [讀音反查](#讀音反查)
 * [**擴充模式](#擴充模式)
 * [安裝](#安裝)
-	* [MacOS Linux](#macos-linux)
+	* [MacOS or Linux](#macos-or-linux)
+		* [備註](#備註)
 
 <!-- /code_chunk_output -->
 
@@ -84,10 +85,11 @@ SHIFT鍵可切換中英輸入，並且將組字區內容直接上字
 ><img div="擴充模式.gif" src="https://raw.githubusercontent.com/ianzhuo/ImageCollection/master/%E6%93%B4%E5%85%85%E6%A8%A1%E5%BC%8F.gif" width="600">
 
 ## 安裝
-### MacOS Linux
+### MacOS or Linux
 目前已於 Ubuntu 18.04.1 和 MacOS Catalina 10.15.3 測試過
 
-直接執行單一指令安裝工具 `$ tools/config.sh -i`。此工具亦提供其它功能，請參考說明提示：
+資料夾 `tools` 內提供單一指令工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
+其它功能請參考 `-h` 說明提示：
 ```
 $ tools/config.sh
 
@@ -102,3 +104,6 @@ Options
   -u, --uninstal  - Remove relative files under $RIME_CFG_PATH
   -h, --help      - This message
 ```
+
+#### 備註
+* 考量到 `default.custom.yaml` 具備高度個人化色彩，此處不宜直接覆蓋原本使用者的設定檔。取而代之以 `mod_yaml.py` 工具自動於個人設定檔中適當位置插入 `- schema: liur`。在反安裝模式中則會裝該行移除，而非刪除 `default.custom.yaml`。若原本使用者尚未定義 `default.custom.yaml` 則會導入預設的 `default.custom.in` 範本
