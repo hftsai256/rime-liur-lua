@@ -1,3 +1,4 @@
 .DS_Store
 
-# temporary folder when installing plum packages from official feed
+# temporary folders
+.ipynb_checkpoints
