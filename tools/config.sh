@@ -34,7 +34,7 @@ Options
   -h, --help      - This message
 "
 
-if [[ ! -f "$REPO_PATH/plum/rime-install" ]]; then
+if [[ ! -e "$REPO_PATH/plum/rime-install" ]]; then
 	echo "(GIT) [submodule] plum"
 	git submodule init
 	git submodule update
@@ -64,6 +64,12 @@ function log_link()
 	ln "$@"
 }
 
+function log_yaml()
+{
+	echo "(YAML) $@"
+	python3 "$REPO_PATH/tools/mod_yaml.py" "$@"
+}
+
 function rime_install()
 {
 	"$REPO_PATH/plum/rime-install" $PARAMS
@@ -71,7 +77,9 @@ function rime_install()
 
 function install()
 {
-	if [[ ! -f "$RIME_BIN" ]]; then
+	local yaml=
+
+	if [[ ! -e "$RIME_BIN" ]]; then
 		echo "(INSTALL) [homebrew-cask] Squirrel"
 		$INSTALL_CMD
 	fi
@@ -82,13 +90,28 @@ function install()
 	for cfgfile in "$REPO_PATH/src/"{*.yaml,*.lua,opencc}; do
 		log_copy $cfgfile "$RIME_CFG_PATH"
 	done
+
+	if [[ ! -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
+		log_copy "$REPO_PATH/src/default.custom.in" "$RIME_CFG_PATH/default.custom.yaml"
+	else
+		log_move "$RIME_CFG_PATH/default.custom.yaml" "$RIME_CFG_PATH/default.custom.bak"
+		log_yaml "$RIME_CFG_PATH/default.custom.bak" "$RIME_CFG_PATH/default.custom.yaml"
+	fi
 }
 
 function uninstall()
 {
 	for cfgfile in "$REPO_PATH/src/"{*.yaml,*.lua,opencc}; do
-		log_remove "$RIME_CFG_PATH/$(basename $cfgfile)"
+		if [[ -e "$RIME_CFG_PATH/$(basename $cfgfile)" ]]; then
+			log_remove "$RIME_CFG_PATH/$(basename $cfgfile)"
+		fi
 	done
+
+	if [[ -e "$RIME_CFG_PATH/default.custom.bak" ]]; then
+		log_move "$RIME_CFG_PATH/default.custom.bak" "$RIME_CFG_PATH/default.custom.yaml"
+	elif [[ -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
+		log_remove "$RIME_CFG_PATH/default.custom.yaml"
+	fi
 }
 
 function clean()
