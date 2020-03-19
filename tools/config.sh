@@ -3,16 +3,25 @@
 REPO_PATH=$(cd $(dirname "${BASH_SOURCE[0]}") && cd .. && pwd -P)
 PROGRAM=$(basename "${BASH_SOURCE[0]}")
 PARAMS=
+SUDO=
+if [[ $EUID -ne 0 ]]; then
+    SUDO="sudo"
+fi
 
 if [[ "$(cat /etc/issue 2> /dev/null)" =~ Ubuntu ]]; then
 	RIME_CFG_PATH="$HOME/.config/ibus/rime"
-	INSTALL_CMD="sudo apt-get install -yq ibus-rime"
+	INSTALL_CMD=$SUDO apt-get update; $SUDO apt-get install -qy ibus-rime
+	RIME_BIN="/usr/lib/ibus-rime/ibus-engine-rime"
+
+elif [[ "$(cat /etc/issue 2> /dev/null)" =~ Debian ]]; then
+	RIME_CFG_PATH="$HOME/.config/ibus/rime"
+	INSTALL_CMD=$SUDO apt-get update; $SUDO apt-get install -qy ibus-rime
 	RIME_BIN="/usr/lib/ibus-rime/ibus-engine-rime"
 
 elif [[ "$OSTYPE" =~ ^darwin ]]; then
 	RIME_CFG_PATH="$HOME/Library/Rime"
 	RIME_BIN="/Library/Input Methods/Squirrel.app/Contents/MacOS/Squirrel"
-	INSTALL_CMD="brew cask install squirrel"
+	INSTALL_CMD=brew cask install squirrel
 
 else
 	echo "Unsupported OS"
@@ -35,6 +44,7 @@ Options
 
 if [[ ! -e "$REPO_PATH/plum/rime-install" ]]; then
 	echo "(GIT) [submodule] plum"
+	cd "$REPO_PATH"
 	git submodule init
 	git submodule update
 fi
