@@ -21,7 +21,7 @@
 	* [讀音反查](#讀音反查)
 * [**擴充模式](#擴充模式)
 * [安裝](#安裝)
-	* [MacOS](#macos)
+	* [MacOS Linux](#macos-linux)
 
 <!-- /code_chunk_output -->
 
@@ -84,8 +84,10 @@ SHIFT鍵可切換中英輸入，並且將組字區內容直接上字
 ><img div="擴充模式.gif" src="https://raw.githubusercontent.com/ianzhuo/ImageCollection/master/%E6%93%B4%E5%85%85%E6%A8%A1%E5%BC%8F.gif" width="600">
 
 ## 安裝
-### MacOS
-執行單一指令安裝工具 `$ tools/config.sh -i`。此工具亦提供其它功能，請參考說明提示：
+### MacOS Linux
+目前已於 Ubuntu 18.04.1 和 MacOS Catalina 10.15.3 測試過
+
+直接執行單一指令安裝工具 `$ tools/config.sh -i`。此工具亦提供其它功能，請參考說明提示：
 ```
 $ tools/config.sh
 
