@@ -101,8 +101,7 @@ function install()
 	if [[ ! -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
 		log_copy "$REPO_PATH/src/default.custom.in" "$RIME_CFG_PATH/default.custom.yaml"
 	else
-		log_move "$RIME_CFG_PATH/default.custom.yaml" "$RIME_CFG_PATH/default.custom.bak"
-		log_yaml "$RIME_CFG_PATH/default.custom.bak" "$RIME_CFG_PATH/default.custom.yaml"
+		log_yaml -a -i "$RIME_CFG_PATH/default.custom.yaml" -o "$RIME_CFG_PATH/default.custom.yaml"
 	fi
 }
 
@@ -114,10 +113,8 @@ function uninstall()
 		fi
 	done
 
-	if [[ -e "$RIME_CFG_PATH/default.custom.bak" ]]; then
-		log_move "$RIME_CFG_PATH/default.custom.bak" "$RIME_CFG_PATH/default.custom.yaml"
-	elif [[ -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
-		log_remove "$RIME_CFG_PATH/default.custom.yaml"
+	if [[ -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
+		log_yaml -d -i "$RIME_CFG_PATH/default.custom.yaml" -o "$RIME_CFG_PATH/default.custom.yaml"
 	fi
 }
 
