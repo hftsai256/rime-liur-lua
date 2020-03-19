@@ -5,15 +5,14 @@ PROGRAM=$(basename "${BASH_SOURCE[0]}")
 PARAMS=
 
 if [[ "$(cat /etc/issue 2> /dev/null)" =~ Ubuntu ]]; then
-	# TODO: Implement for Ubuntu environment
-	echo "Not yet implemented for Ubuntu"
-	exit 1
+	RIME_CFG_PATH="$HOME/.config/ibus/rime"
+	INSTALL_CMD="sudo apt-get install -yq ibus-rime"
+	RIME_BIN="/usr/lib/ibus-rime/ibus-engine-rime"
 
 elif [[ "$OSTYPE" =~ ^darwin ]]; then
-	RIME_CFG_PATH=$HOME/Library/Rime
+	RIME_CFG_PATH="$HOME/Library/Rime"
 	RIME_BIN="/Library/Input Methods/Squirrel.app/Contents/MacOS/Squirrel"
 	INSTALL_CMD="brew cask install squirrel"
-	OS="darwin"
 
 else
 	echo "Unsupported OS"
@@ -77,10 +76,8 @@ function rime_install()
 
 function install()
 {
-	local yaml=
-
 	if [[ ! -e "$RIME_BIN" ]]; then
-		echo "(INSTALL) [homebrew-cask] Squirrel"
+		echo "(INSTALL) Rime"
 		$INSTALL_CMD
 	fi
 
