@@ -26,7 +26,10 @@ Usage: ${PROGRAM} [-uh] install Open Xiami configuration for RIME framework
 
 Options
   -c, --clean     - Remove Build folder in $RIME_CFG_PATH
-  -i, --install   - Install configuration files to $RIME_CFG_PATH
+  -i, --install   - Install everything, including:
+                    * main application by homebrew cask
+                    * dependencies (luna-pinyan, terra-pinyin, bopomofo) by plum
+                    * configuration files to $RIME_CFG_PATH
   -u, --uninstal  - Remove relative files under $RIME_CFG_PATH
   -h, --help      - This message
 "
