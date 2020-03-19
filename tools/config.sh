@@ -30,7 +30,7 @@ else
 fi
 
 HELP_MSG="
-Usage: ${PROGRAM} [-uh] install Open Xiami configuration for RIME framework
+Usage: ${PROGRAM} [-ciuh] install Open Xiami configuration for RIME framework
 
 Options
   -c, --clean     - Remove Build folder in $RIME_CFG_PATH

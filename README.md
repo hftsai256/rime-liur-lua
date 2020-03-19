@@ -89,14 +89,14 @@ SHIFT鍵可切換中英輸入，並且將組字區內容直接上字
 ```
 $ tools/config.sh
 
-Usage: config.sh [-uh] install Open Xiami configuration for RIME framework
+Usage: config.sh [-ciuh] install Open Xiami configuration for RIME framework
 
 Options
-  -c, --clean     - Remove Build folder in /Users/hftsai/Library/Rime
+  -c, --clean     - Remove Build folder in $RIME_CFG_PATH
   -i, --install   - Install everything, including:
                     * main application by homebrew cask
                     * dependencies (luna-pinyan, terra-pinyin, bopomofo) by plum
-                    * configuration files to /Users/hftsai/Library/Rime
-  -u, --uninstal  - Remove relative files under /Users/hftsai/Library/Rime
+                    * configuration files to $RIME_CFG_PATH
+  -u, --uninstal  - Remove relative files under $RIME_CFG_PATH
   -h, --help      - This message
 ```
