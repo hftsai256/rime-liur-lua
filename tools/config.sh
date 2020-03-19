@@ -10,18 +10,18 @@ fi
 
 if [[ "$(cat /etc/issue 2> /dev/null)" =~ Ubuntu ]]; then
 	RIME_CFG_PATH="$HOME/.config/ibus/rime"
-	INSTALL_CMD=$SUDO apt-get update; $SUDO apt-get install -qy ibus-rime
+	INSTALL_CMD="$SUDO apt-get update; $SUDO apt-get install -qy ibus-rime"
 	RIME_BIN="/usr/lib/ibus-rime/ibus-engine-rime"
 
 elif [[ "$(cat /etc/issue 2> /dev/null)" =~ Debian ]]; then
 	RIME_CFG_PATH="$HOME/.config/ibus/rime"
-	INSTALL_CMD=$SUDO apt-get update; $SUDO apt-get install -qy ibus-rime
+	INSTALL_CMD="$SUDO apt-get update; $SUDO apt-get install -qy ibus-rime"
 	RIME_BIN="/usr/lib/ibus-rime/ibus-engine-rime"
 
 elif [[ "$OSTYPE" =~ ^darwin ]]; then
 	RIME_CFG_PATH="$HOME/Library/Rime"
 	RIME_BIN="/Library/Input Methods/Squirrel.app/Contents/MacOS/Squirrel"
-	INSTALL_CMD=brew cask install squirrel
+	INSTALL_CMD="brew cask install squirrel"
 
 else
 	echo "Unsupported OS"
@@ -51,7 +51,7 @@ fi
 
 function log_copy()
 {
-	echo "(COPY) $@"
+	echo "(COPY) $(basename $1) -> $2"
 	cp -r "$@"
 }
 
@@ -88,7 +88,7 @@ function install()
 {
 	if [[ ! -e "$RIME_BIN" ]]; then
 		echo "(INSTALL) Rime"
-		$INSTALL_CMD
+		eval "$INSTALL_CMD"
 	fi
 
 	echo "(INSTALL) dependencies"
@@ -101,7 +101,7 @@ function install()
 	if [[ ! -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
 		log_copy "$REPO_PATH/src/default.custom.in" "$RIME_CFG_PATH/default.custom.yaml"
 	else
-		log_yaml -a -i "$RIME_CFG_PATH/default.custom.yaml" -o "$RIME_CFG_PATH/default.custom.yaml"
+		log_yaml -a -i "$RIME_CFG_PATH/default.custom.yaml" patch/schema_list schema liur
 	fi
 }
 
@@ -114,7 +114,7 @@ function uninstall()
 	done
 
 	if [[ -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
-		log_yaml -d -i "$RIME_CFG_PATH/default.custom.yaml" -o "$RIME_CFG_PATH/default.custom.yaml"
+		log_yaml -d -i "$RIME_CFG_PATH/default.custom.yaml" patch/schema_list schema liur
 	fi
 }
 
@@ -136,10 +136,12 @@ while (( "$#" )); do
 			shift
 			;;
 		-i|--install)
+			clean
 			install
 			shift
 			;;
 		-u|--uninstall)
+			clean
 			uninstall
 			shift
 			;;
