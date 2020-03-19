@@ -20,6 +20,8 @@
 	* [複合型編碼反查](#複合型編碼反查)
 	* [讀音反查](#讀音反查)
 * [**擴充模式](#擴充模式)
+* [安裝](#安裝)
+	* [MacOS](#macos)
 
 <!-- /code_chunk_output -->
 
@@ -80,3 +82,21 @@ SHIFT鍵可切換中英輸入，並且將組字區內容直接上字
 
 >目前提供日期轉換器功能，快速轉換中文日期
 ><img div="擴充模式.gif" src="https://raw.githubusercontent.com/ianzhuo/ImageCollection/master/%E6%93%B4%E5%85%85%E6%A8%A1%E5%BC%8F.gif" width="600">
+
+## 安裝
+### MacOS
+執行單一指令安裝工具 `$ tools/config.sh -i`。此工具亦提供其它功能，請參考說明提示：
+```
+$ tools/config.sh
+
+Usage: config.sh [-uh] install Open Xiami configuration for RIME framework
+
+Options
+  -c, --clean     - Remove Build folder in /Users/hftsai/Library/Rime
+  -i, --install   - Install everything, including:
+                    * main application by homebrew cask
+                    * dependencies (luna-pinyan, terra-pinyin, bopomofo) by plum
+                    * configuration files to /Users/hftsai/Library/Rime
+  -u, --uninstal  - Remove relative files under /Users/hftsai/Library/Rime
+  -h, --help      - This message
+```
