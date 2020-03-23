@@ -86,6 +86,8 @@ function rime_install()
 
 function install()
 {
+	mkdir -p "$RIME_CFG_PATH"
+
 	if [[ ! -e "$RIME_BIN" ]]; then
 		echo "(INSTALL) Rime"
 		eval "$INSTALL_CMD"
@@ -120,7 +122,9 @@ function uninstall()
 
 function clean()
 {
-	log_remove "$RIME_CFG_PATH/build"
+	if [[ -e "$RIME_CFG_PATH/build" ]]; then
+		log_remove "$RIME_CFG_PATH/build"
+	fi
 }
 
 if [[ $# -eq 0 ]]
