@@ -1,0 +1,26 @@
+# encoding: utf-8
+---
+recipe:
+  Rx: install
+  description: >-
+    Install liur and flush schema list to liur
+
+install_files: >-
+  liur.extended.dict.yaml
+  liur.schema.yaml
+  openxiami_CustomWord.dict.yaml
+  openxiami_TCJP.dict.yaml
+  openxiami_TradExt.dict.yaml
+  rime.lua
+  opencc/*.*
+
+patch_files:
+  default.custom.yaml:
+    - patch/+:
+        schema_list: [schema: liur]
+    - patch/key_binder/bindings/+:
+      - { accept: period, send: period, when: has_menu }      # 輸入.
+      - { accept: "Control+period", toggle: simplification, when: always }    #進行簡繁切換
+      - { accept: "Control+apostrophe", toggle: liu_w2c, when: always }   #顯示同音字
+      - { accept: "Control+slash", toggle: extended_charset, when: always}
+      - { accept: "Shift+space", toggle: full_shape, when: always}
