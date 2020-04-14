@@ -1,6 +1,8 @@
 #!/bin/bash
 
+# relative repo path from plum would be $plum/packages/hftsai256/liur-lua
 REPO_PATH=$(cd $(dirname "${BASH_SOURCE[0]}") && cd .. && pwd -P)
+PLUM_PATH=$REPO_PATH/../../..
 PROGRAM=$(basename "${BASH_SOURCE[0]}")
 PARAMS=
 SUDO=
@@ -30,7 +32,7 @@ else
 fi
 
 HELP_MSG="
-Usage: ${PROGRAM} [-ciuh] install Open Xiami configuration for RIME framework
+Usage: ${PROGRAM} [-ciuh] install Liur-Lua on OpenXiami for RIME framework
 
 Options
   -c, --clean     - Remove Build folder in $RIME_CFG_PATH
@@ -42,41 +44,10 @@ Options
   -h, --help      - This message
 "
 
-if [[ ! -e "$REPO_PATH/plum/rime-install" ]]; then
-	echo "(GIT) [submodule] plum"
-	cd "$REPO_PATH"
-	git submodule init
-	git submodule update
-fi
-
-function log_copy()
-{
-	echo "(COPY) $(basename $1) -> $2"
-	cp -r "$@"
-}
-
 function log_remove()
 {
 	echo "(DEL) $@"
 	rm -r "$@"
-}
-
-function log_move()
-{
-	echo "(MOVE) $@"
-	mv "$@"
-}
-
-function log_link()
-{
-	echo "(LN) $@"
-	ln "$@"
-}
-
-function log_yaml()
-{
-	echo "(YAML) $@"
-	python3 "$REPO_PATH/tools/mod_yaml.py" "$@"
 }
 
 function rime_install()
@@ -93,31 +64,20 @@ function install()
 		eval "$INSTALL_CMD"
 	fi
 
-	echo "(INSTALL) dependencies"
-	"$REPO_PATH/plum/rime-install" luna-pinyin terra-pinyin bopomofo
+	echo "(PLUM) dependencies"
+	"$PLUM_PATH/rime-install" luna-pinyin terra-pinyin bopomofo
 
-	for cfgfile in "$REPO_PATH/src/"{*.yaml,*.lua,opencc}; do
-		log_copy $cfgfile "$RIME_CFG_PATH"
-	done
-
-	if [[ ! -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
-		log_copy "$REPO_PATH/src/default.custom.in" "$RIME_CFG_PATH/default.custom.yaml"
-	else
-		log_yaml -a -i "$RIME_CFG_PATH/default.custom.yaml" patch/schema_list schema liur
-	fi
+	echo "(PLUM) liur"
+	"$PLUM_PATH/rime-install" hftsai256/rime-liur-lua@plum:install
 }
 
 function uninstall()
 {
-	for cfgfile in "$REPO_PATH/src/"{*.yaml,*.lua,opencc}; do
+	for cfgfile in "$REPO_PATH/"{*.yaml,*.lua,opencc}; do
 		if [[ -e "$RIME_CFG_PATH/$(basename $cfgfile)" ]]; then
 			log_remove "$RIME_CFG_PATH/$(basename $cfgfile)"
 		fi
 	done
-
-	if [[ -e "$RIME_CFG_PATH/default.custom.yaml" ]]; then
-		log_yaml -d -i "$RIME_CFG_PATH/default.custom.yaml" patch/schema_list schema liur
-	fi
 }
 
 function clean()
