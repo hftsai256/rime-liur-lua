@@ -88,7 +88,12 @@ SHIFT鍵可切換中英輸入，並且將組字區內容直接上字
 ### MacOS or Linux
 目前已於 Ubuntu 18.04.1 和 MacOS Catalina 10.15.3 測試過
 
-資料夾 `tools` 內提供單一指令工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
+本專案自 PR #5 之後相容於 Rime 官方提供的 (Plum)[https://github.com/rime/plum] 管理工具，從而簡化安裝流程，同時也讓跨平台佈署更加方便：
+```
+$ ./rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
+```
+
+目前版本保存了位於 `plum/package/hftsai256/rime-lua/tools` 內的管理工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
 其它功能請參考 `-h` 說明提示：
 ```
 $ tools/config.sh
@@ -106,4 +111,4 @@ Options
 ```
 
 #### 備註
-* 考量到 `default.custom.yaml` 具備高度個人化色彩，此處不宜直接覆蓋原本使用者的設定檔。取而代之以 `mod_yaml.py` 工具自動於個人設定檔中適當位置插入 `- schema: liur`。在反安裝模式中則會裝該行移除，而非刪除 `default.custom.yaml`。若原本使用者尚未定義 `default.custom.yaml` 則會導入預設的 `default.custom.in` 範本
+* 考量到 `default.custom.yaml` 具備高度個人化色彩，此處不宜直接覆蓋原本使用者的設定檔。故本專案依賴 Plum 提供對特定檔案補釘的功能，直接將必要設定以 `__patch` 的形式植入 `default.custom.yaml`。
