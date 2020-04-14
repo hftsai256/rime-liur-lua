@@ -6,13 +6,13 @@ recipe:
     Install liur and flush schema list to liur
 
 install_files: >-
-  # liur.extended.dict.yaml
-  # liur.schema.yaml
-  # openxiami_CustomWord.dict.yaml
-  # openxiami_TCJP.dict.yaml
-  # openxiami_TradExt.dict.yaml
-  # rime.lua
-  # opencc/*.*
+  liur.extended.dict.yaml
+  liur.schema.yaml
+  openxiami_CustomWord.dict.yaml
+  openxiami_TCJP.dict.yaml
+  openxiami_TradExt.dict.yaml
+  rime.lua
+  opencc/*.*
 
 patch_files:
   default.custom.yaml:
