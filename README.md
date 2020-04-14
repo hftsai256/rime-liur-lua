@@ -90,12 +90,13 @@ SHIFT鍵可切換中英輸入，並且將組字區內容直接上字
 
 本專案自 PR #5 之後相容於 Rime 官方提供的 [Plum](https://github.com/rime/plum) 管理工具，從而簡化安裝流程，同時也讓跨平台佈署更加方便。使用者可以手動將 Plum Clone 下來後執行：
 ```
+$ git clone https://github.com/rime/plum.git && cd plum
 $ ./rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
 ```
 
 或是直接 pipe：
 ```
-curl -fsSL https://git.io/rime-install | bash -s -- https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
+$ curl -fsSL https://git.io/rime-install | bash -s -- https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
 ```
 
 目前版本保存了位於 `plum/package/hftsai256/rime-lua/tools` 內的管理工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
