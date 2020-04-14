@@ -1,0 +1,14 @@
+# encoding: utf-8
+---
+recipe:
+  Rx: flush_schema
+  description: >-
+    Flush current schema list to liur only
+
+patch_files:
+  default.custom.yaml:
+    - patch/+:
+        schema_list: []
+    - patch/+:
+        schema_list/+/+:
+          - schema: liur
