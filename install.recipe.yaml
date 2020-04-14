@@ -5,6 +5,9 @@ recipe:
   description: >-
     Install liur and flush schema list to liur
 
+install_files: >-
+  # src/*
+
 patch_files:
   default.custom.yaml:
     - patch/+:
