@@ -1,9 +1,9 @@
 # encoding: utf-8
 ---
 recipe:
-  Rx: flush_schema
+  Rx: install
   description: >-
-    Flush current schema list to liur only
+    Install liur and flush schema list to liur
 
 patch_files:
   default.custom.yaml:
