@@ -22,7 +22,7 @@
 * [**擴充模式](#擴充模式)
 * [安裝](#安裝)
 	* [MacOS or Linux](#macos-or-linux)
-		* [備註](#備註)
+	* [Windows](#windows)
 
 <!-- /code_chunk_output -->
 
@@ -88,9 +88,14 @@ SHIFT鍵可切換中英輸入，並且將組字區內容直接上字
 ### MacOS or Linux
 目前已於 Ubuntu 18.04.1 和 MacOS Catalina 10.15.3 測試過
 
-本專案自 PR #5 之後相容於 Rime 官方提供的 (Plum)[https://github.com/rime/plum] 管理工具，從而簡化安裝流程，同時也讓跨平台佈署更加方便：
+本專案自 PR #5 之後相容於 Rime 官方提供的 [Plum](https://github.com/rime/plum) 管理工具，從而簡化安裝流程，同時也讓跨平台佈署更加方便。使用者可以手動將 Plum Clone 下來後執行：
 ```
 $ ./rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
+```
+
+或是直接 pipe：
+```
+curl -fsSL https://git.io/rime-install | bash -s -- https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
 ```
 
 目前版本保存了位於 `plum/package/hftsai256/rime-lua/tools` 內的管理工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
@@ -110,5 +115,8 @@ Options
   -h, --help      - This message
 ```
 
-#### 備註
-* 考量到 `default.custom.yaml` 具備高度個人化色彩，此處不宜直接覆蓋原本使用者的設定檔。故本專案依賴 Plum 提供對特定檔案補釘的功能，直接將必要設定以 `__patch` 的形式植入 `default.custom.yaml`。
+### Windows
+使用者可以自 Github 下載 [Plum Windows Bootstrap](https://github.com/rime/plum-windows-bootstrap/archive/master.zip) 並以同樣的指令安裝：
+```
+rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
+```
