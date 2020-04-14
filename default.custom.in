@@ -43,3 +43,4 @@ patch:
     - { when: composing, accept: ISO_Left_Tab, send: Shift+Left }
     - { when: composing, accept: Shift+Tab, send: Shift+Left }
     - { when: composing, accept: Tab, send: Shift+Right }
+
