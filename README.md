@@ -99,6 +99,8 @@ $ ./rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/maste
 $ curl -fsSL https://git.io/rime-install | bash -s -- https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
 ```
 
+目前 Ubuntu 18.04 LTS 下的 `ibus-rime` 穩定發佈版本尚未支援 `__patch` 語法。相較於安裝或編譯不穩定的 `ibus-rime v1.4.0-2`，將源碼中 `plum/package/hftsai256/rime-lua/default.custom.yaml` 複製到 `~/.config/ibus/rime` 會更簡單些。
+
 目前版本保存了位於 `plum/package/hftsai256/rime-lua/tools` 內的管理工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
 其它功能請參考 `-h` 說明提示：
 ```
