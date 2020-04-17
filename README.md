@@ -6,7 +6,9 @@
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
 <!-- code_chunk_output -->
-
+* [安裝](#安裝)
+	* [MacOS or Linux](#macos-or-linux)
+	* [Windows](#windows)
 * [基本功能](#基本功能)
 	* [中英混輸](#中英混輸)
 	* [取消碼長限制](#取消碼長限制)
@@ -20,11 +22,54 @@
 	* [複合型編碼反查](#複合型編碼反查)
 	* [讀音反查](#讀音反查)
 * [**擴充模式](#擴充模式)
-* [安裝](#安裝)
-	* [MacOS or Linux](#macos-or-linux)
-	* [Windows](#windows)
 
 <!-- /code_chunk_output -->
+
+
+## 安裝
+本專案自 PR #5 之後相容於 Rime 官方提供的 [Plum](https://github.com/rime/plum) 管理工具，從而簡化安裝流程，同時也讓跨平台佈署更加方便。
+### MacOS or Linux
+目前已於 Ubuntu 18.04.1 和 MacOS Catalina 10.15.3 測試過
+
+安裝指令：
+```
+$ git clone https://github.com/rime/plum.git && cd plum
+$ ./rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
+```
+
+或是直接 pipe：
+```
+$ curl -fsSL https://git.io/rime-install | bash -s -- https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
+```
+
+若 Distribution 帶入的 `ibus-rime` 版本較舊而不支援 `__patch` 語法 (如 Ubuntu 18.04 LTS)，可參考源碼中提供的範本 `plum/package/hftsai256/rime-lua/default.custom.yaml` 會更簡單些。Ubuntu 20.04 LTS 會直接帶入 `ibus-rime v1.4.0-2` 版。
+
+目前版本保存了位於 `plum/package/hftsai256/rime-lua/tools` 內的管理工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
+其它功能請參考 `-h` 說明提示：
+```
+$ tools/config.sh
+
+Usage: config.sh [-ciuh] install Open Xiami configuration for RIME framework
+
+Options
+  -c, --clean     - Remove Build folder in $RIME_CFG_PATH
+  -i, --install   - Install everything, including:
+                    * main application by homebrew cask
+                    * dependencies (luna-pinyan, terra-pinyin, bopomofo) by plum
+                    * configuration files to $RIME_CFG_PATH
+  -u, --uninstal  - Remove relative files under $RIME_CFG_PATH
+  -h, --help      - This message
+```
+
+### Windows
+雖然 Plum 提供 Windows bat 腳本但並沒有支援 Recipe 語法，故 Windows 使用者仍須透過 Git Bash 執行 Plum。
+* [Git for Windows](https://git-scm.com/download/win)
+* [Plum Windows Bootstrap](https://github.com/rime/plum-windows-bootstrap/archive/master.zip)
+
+安裝指令：
+```
+rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
+```
 
 ## 基本功能
 ### 中英混輸
@@ -83,43 +128,3 @@ SHIFT鍵可切換中英輸入，並且將組字區內容直接上字
 
 >目前提供日期轉換器功能，快速轉換中文日期
 ><img div="擴充模式.gif" src="https://raw.githubusercontent.com/ianzhuo/ImageCollection/master/%E6%93%B4%E5%85%85%E6%A8%A1%E5%BC%8F.gif" width="600">
-
-## 安裝
-### MacOS or Linux
-目前已於 Ubuntu 18.04.1 和 MacOS Catalina 10.15.3 測試過
-
-本專案自 PR #5 之後相容於 Rime 官方提供的 [Plum](https://github.com/rime/plum) 管理工具，從而簡化安裝流程，同時也讓跨平台佈署更加方便。使用者可以手動將 Plum Clone 下來後執行：
-```
-$ git clone https://github.com/rime/plum.git && cd plum
-$ ./rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
-```
-
-或是直接 pipe：
-```
-$ curl -fsSL https://git.io/rime-install | bash -s -- https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
-```
-
-目前 Ubuntu 18.04 LTS 下的 `ibus-rime` 穩定發佈版本尚未支援 `__patch` 語法。相較於安裝或編譯不穩定的 `ibus-rime v1.4.0-2`，將源碼中 `plum/package/hftsai256/rime-lua/default.custom.yaml` 複製到 `~/.config/ibus/rime` 會更簡單些。
-
-目前版本保存了位於 `plum/package/hftsai256/rime-lua/tools` 內的管理工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
-其它功能請參考 `-h` 說明提示：
-```
-$ tools/config.sh
-
-Usage: config.sh [-ciuh] install Open Xiami configuration for RIME framework
-
-Options
-  -c, --clean     - Remove Build folder in $RIME_CFG_PATH
-  -i, --install   - Install everything, including:
-                    * main application by homebrew cask
-                    * dependencies (luna-pinyan, terra-pinyin, bopomofo) by plum
-                    * configuration files to $RIME_CFG_PATH
-  -u, --uninstal  - Remove relative files under $RIME_CFG_PATH
-  -h, --help      - This message
-```
-
-### Windows
-使用者可以自 Github 下載 [Plum Windows Bootstrap](https://github.com/rime/plum-windows-bootstrap/archive/master.zip) 並以同樣的指令安裝：
-```
-rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
-```
