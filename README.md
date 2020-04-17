@@ -62,13 +62,19 @@ Options
 ```
 
 ### Windows
-雖然 Plum 提供 Windows bat 腳本但並沒有支援 Recipe 語法，故 Windows 使用者仍須透過 Git Bash 執行 Plum。
+雖然 Plum 提供 Windows bat 腳本但並沒有支援 Recipe 語法。因此推荐預載 Git Bash for Windows 方能使 Plum 發揮全部的功力。
+
 * [Git for Windows](https://git-scm.com/download/win)
 * [Plum Windows Bootstrap](https://github.com/rime/plum-windows-bootstrap/archive/master.zip)
 
 安裝指令：
 ```
 rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
+```
+
+如果不想安裝 Git Bash for Windows，你仍然可以執行 `tools/Install.bat` 或是手動把輸入方案複製到 `%AppData%\Rime`。也別忘了安裝朙月拼音，大地拼音和注音輸入：
+```
+rime-install luna-pinyin terra-pinyin bopomofo
 ```
 
 ## 基本功能
