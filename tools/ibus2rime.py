@@ -49,18 +49,23 @@ class RimeDict:
         self._falt_table = self._flatten(base)
 
     def rehash(self):
-        table = self._pivot('tabkeys')
-        for k in list(table.keys()):
-            for i, e in enumerate(sorted(table[k], key=lambda x:-x.freq)):
-                sh = self.__shorthand(e.tabkeys, i)
-                ent = self.Entry(e.id, sh, e.phrase, e.freq, e.user_freq-1)
-                try:
-                    table[sh].add(ent)
-                except KeyError:
-                    table[sh] = set([ent])
+        base = self._pivot('tabkeys')
+        append = dict()
+        for k in base.keys():
+            if k == 'akl':
+                import pdb; pdb.set_trace()
+            for i, e in enumerate(sorted(base[k], key=lambda x:-x.freq)):
+                if i > 0:
+                    sh = self.__shorthand(e.tabkeys, i)
+                    ent = self.Entry(e.id, sh, e.phrase, e.freq, e.user_freq-i)
+                    try:
+                        append[sh].add(ent)
+                    except KeyError:
+                        append[sh] = set([ent])
+        base = self.__merge_pivoted_table(base, append)
 
         ret = dict()
-        for key, group in table.items():
+        for key, group in base.items():
             ordered = sorted(group, key=lambda x:(-x.freq, -x.user_freq))
             ret[key] = [self.Entry(e.id, e.tabkeys, e.phrase, 100-i, 0) for i, e in enumerate(ordered)]
         self._flat_table = self._flatten(ret)
@@ -90,6 +95,16 @@ class RimeDict:
             return original_key + self._sel_suffix[index]
         except IndexError:
             return original_key
+
+    @staticmethod
+    def __merge_pivoted_table(base: Dict, append: Dict):
+        ret = base.copy()
+        for key, value in append.items():
+            try:
+                ret[key].update(value)
+            except KeyError:
+                ret[key] = value
+        return ret
 
     @staticmethod
     def __clean_dupe_phrases(entry: Iterable[Entry]) -> Set:
