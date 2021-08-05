@@ -6,9 +6,9 @@
 """
 import sys
 import argparse
+from pathlib import Path
 from dataclasses import dataclass, field
 from easysql3 import DataBaseSQL3
-from pathlib import Path
 from datetime import date
 from collections.abc import Callable
 from typing import List, Dict, Iterable, Set
@@ -30,7 +30,7 @@ class RimeDict:
         user_freq: int = field(compare=False, hash=False)
 
 
-    def __init__(self, dbfp: Path):
+    def __init__(self, dbfp):
         self._db = DataBaseSQL3(dbfp)
         self._flat_table = [self.Entry(*e) for e in self._db.phrases.full()]
 
@@ -77,7 +77,7 @@ class RimeDict:
         pool = [entry for entry in self._flat_table]
         for e in pool:
             try:
-                ret[getattr(e, key)].update([e])
+                ret[getattr(e, key)].add(e)
             except KeyError:
                 ret[getattr(e, key)] = set([e])
         if cleaner:
@@ -115,18 +115,22 @@ class RimeWriter:
     yaml_header = '---\n'
     yaml_sentinal = '...\n'
 
-    def __init__(self, filepath: Path):
-        self._name = filepath.name
+    def __init__(self, filepath: str):
+        self._name = filepath
         self._fp = filepath
         self._handle = None
-        self.yaml_data['name'] = filepath.name.removesuffix('.dict.yaml')
+        self.yaml_data['name'] = filepath.removesuffix('.dict.yaml')
 
     def __enter__(self):
+        if Path(self._fp).exists():
+            if not input(f'Output file {self._fp} exists, overwrite? [y/N] ').lower() == 'y':
+                raise FileExistsError
+
         self._handle = open(self._fp, 'w+')
         self._write_header()
         return self
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, tp, value, traceback):
         self._handle.close()
 
     def _write_header(self):
@@ -143,18 +147,19 @@ class RimeWriter:
 def parse(args):
     parser = argparse.ArgumentParser(
         description="""Convert iBus input table (v1.8.x+) into yaml format for Rime""")
-    parser.add_argument('databases', nargs='+', help='input databases')
-    parser.add_argument('output', help='output table file')
+    parser.add_argument('databases', nargs='+', help='iBus input databases in priority order')
+    parser.add_argument('-o', '--output',
+        help='output table file, will append .dict.yaml extension if missing')
     return parser.parse_args(args)
 
 def main():
     args = parse(sys.argv[1:])
-    output = Path(args.output)
-    base, *exts = [RimeDict(Path(db)) for db in args.databases]
-    base.join(exts)
-    base.rehash()
+    output = args.output.removesuffix('.yaml').removesuffix('.dict') + '.dict.yaml'
 
     with RimeWriter(output) as wt:
+        base, *exts = [RimeDict(db) for db in args.databases]
+        base.join(exts)
+        base.rehash()
         for entry in base.export():
             wt.write_table(entry)
 
