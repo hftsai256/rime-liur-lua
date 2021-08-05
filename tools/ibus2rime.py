@@ -19,6 +19,7 @@ class RimeDict:
     _keyorder: str = r"abcdefghijklmnopqrstuvwxyz[];',."
     _sel_suffix: List[str] = ['', 'v', 'r', 's', 'f', 'w', 'l', 'c', 'b']
     _flat_table: Iterable
+    _exclude_shorthand: List[str] = ['liu[]']
     _db: DataBaseSQL3
 
     @dataclass(frozen=True)
@@ -52,20 +53,16 @@ class RimeDict:
         base = self._pivot('tabkeys')
         append = dict()
         for k in base.keys():
-            if k == 'akl':
-                import pdb; pdb.set_trace()
             for i, e in enumerate(sorted(base[k], key=lambda x:-x.freq)):
-                if i > 0:
-                    sh = self.__shorthand(e.tabkeys, i)
-                    ent = self.Entry(e.id, sh, e.phrase, e.freq, e.user_freq-i)
-                    try:
-                        append[sh].add(ent)
-                    except KeyError:
-                        append[sh] = set([ent])
-        base = self.__merge_pivoted_table(base, append)
+                sh = self.__shorthand(e.tabkeys, i, exclude=self._exclude_shorthand)
+                ent = self.Entry(e.id, sh, e.phrase, e.freq, e.user_freq-i)
+                try:
+                    append[sh].add(ent)
+                except KeyError:
+                    append[sh] = set([ent])
 
         ret = dict()
-        for key, group in base.items():
+        for key, group in append.items():
             ordered = sorted(group, key=lambda x:(-x.freq, -x.user_freq))
             ret[key] = [self.Entry(e.id, e.tabkeys, e.phrase, 100-i, 0) for i, e in enumerate(ordered)]
         self._flat_table = self._flatten(ret)
@@ -90,21 +87,14 @@ class RimeDict:
                 ret[k] = cleaner(ret[k])
         return ret
 
-    def __shorthand(self, original_key, index):
-        try:
-            return original_key + self._sel_suffix[index]
-        except IndexError:
-            return original_key
-
-    @staticmethod
-    def __merge_pivoted_table(base: Dict, append: Dict):
-        ret = base.copy()
-        for key, value in append.items():
+    def __shorthand(self, original_key, index, exclude=None):
+        if not (exclude and original_key in exclude):
             try:
-                ret[key].update(value)
-            except KeyError:
-                ret[key] = value
-        return ret
+                return original_key + self._sel_suffix[index]
+            except IndexError:
+                return original_key
+        else:
+            return original_key
 
     @staticmethod
     def __clean_dupe_phrases(entry: Iterable[Entry]) -> Set:
