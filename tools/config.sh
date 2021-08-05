@@ -10,12 +10,8 @@ if [[ $EUID -ne 0 ]]; then
     SUDO="sudo"
 fi
 
-if [[ "$(cat /etc/issue 2> /dev/null)" =~ Ubuntu ]]; then
-	RIME_CFG_PATH="$HOME/.config/ibus/rime"
-	INSTALL_CMD="$SUDO apt-get update; $SUDO apt-get install -qy ibus-rime"
-	RIME_BIN="/usr/lib/ibus-rime/ibus-engine-rime"
-
-elif [[ "$(cat /etc/issue 2> /dev/null)" =~ Debian ]]; then
+LINUX_DISTRO=$(cat /etc/issue 2> /dev/null)
+if [[ $LINUX_DISTRO =~ Ubuntu || $LINUX_DISTRO =~ Debian ]]; then
 	RIME_CFG_PATH="$HOME/.config/ibus/rime"
 	INSTALL_CMD="$SUDO apt-get update; $SUDO apt-get install -qy ibus-rime"
 	RIME_BIN="/usr/lib/ibus-rime/ibus-engine-rime"
@@ -35,13 +31,14 @@ HELP_MSG="
 Usage: ${PROGRAM} [-ciuh] install Liur-Lua on OpenXiami for RIME framework
 
 Options
-  -c, --clean     - Remove Build folder in $RIME_CFG_PATH
-  -i, --install   - Install everything, including:
-                    * main application by homebrew cask
-                    * dependencies (luna-pinyan, terra-pinyin, bopomofo) by plum
-                    * configuration files to $RIME_CFG_PATH
-  -u, --uninstal  - Remove relative files under $RIME_CFG_PATH
-  -h, --help      - This message
+  -c, --clean          - Remove Build folder in $RIME_CFG_PATH
+  -i, --install        - Install everything, including:
+                        * main application by homebrew cask
+                        * dependencies (luna-pinyan, terra-pinyin, bopomofo) by plum
+                        * configuration files to $RIME_CFG_PATH
+  -u, --uninstal       - Remove relative files under $RIME_CFG_PATH
+  -o, --build-official - Build dict from official table, login credential required
+  -h, --help           - This message
 "
 
 function log_remove()
@@ -80,6 +77,18 @@ function uninstall()
 	done
 }
 
+function build_official()
+{
+    mkdir -p $REPO_PATH/build
+    echo "(LOGIN) Logging in boshiamy.com/"
+    echo "(LOGIN) Login email"
+    read username
+    echo "(LOGIN) Login password"
+    read password
+    echo "(LOGIN) Fetching cookie"
+    curl --cookie cjar --coojie-jar cjar \\n--data 'email=hftsai256@gmail.com' \\n--data 'pass=redfish9' \\n--data 'form_id=login-form' \\n--data 'login-submit=登入' \\n--location \\n--output curl_log.html \\nhttps://boshiamy.com/login.php
+}
+
 function clean()
 {
 	if [[ -e "$RIME_CFG_PATH/build" ]]; then
@@ -107,6 +116,10 @@ while (( "$#" )); do
 		-u|--uninstall)
 			clean
 			uninstall
+			shift
+			;;
+		-o|--build-official)
+			build_official
 			shift
 			;;
 		-h|--help)
