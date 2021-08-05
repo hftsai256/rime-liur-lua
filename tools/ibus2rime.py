@@ -106,16 +106,14 @@ class RimeDict:
 
 
 class RimeWriter:
-    yaml_data = {
-        'name': 'Boshiamy_TCJP',
-        'version': f'{date.today().strftime("%m%d%Y")}-nightly',
-        'sort': 'original',
-    }
+    yaml_data = {'name': 'Boshiamy_TCJP',
+                 'version': f'{date.today().strftime("%m%d%Y")}-nightly',
+                 'sort': 'original'}
     descripter = ('# Boshiamy Input Table for RIME\n'
                   '# encoding: utf-8\n'
-                  '#\n'
-                  '---\n')
-    sentinal = '...\n'
+                  '#\n')
+    yaml_header = '---\n'
+    yaml_sentinal = '...\n'
 
     def __init__(self, filepath: Path):
         self._name = filepath.name
@@ -125,16 +123,20 @@ class RimeWriter:
 
     def __enter__(self):
         self._handle = open(self._fp, 'w+')
-        self._handle.write(self.descripter)
-        for key, value in self.yaml_data.items():
-            self._handle.write(f'{key}: {value}\n')
-        self._handle.write(self.sentinal)
+        self._write_header()
         return self
 
     def __exit__(self, type, value, traceback):
         self._handle.close()
 
-    def write(self, entry):
+    def _write_header(self):
+        self._handle.write(self.descripter)
+        self._handle.write(self.yaml_header)
+        for key, value in self.yaml_data.items():
+            self._handle.write(f'{key}: {value}\n')
+        self._handle.write(self.yaml_sentinal)
+
+    def write_table(self, entry):
         self._handle.write(f'{entry.phrase}\t{entry.tabkeys}\t{entry.freq}\n')
 
 
@@ -154,7 +156,7 @@ def main():
 
     with RimeWriter(output) as wt:
         for entry in base.export():
-            wt.write(entry)
+            wt.write_table(entry)
 
 if __name__ == '__main__':
     main()
