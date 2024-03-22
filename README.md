@@ -26,23 +26,37 @@
 <!-- /code_chunk_output -->
 
 
-## 安裝
-本專案自 PR #5 之後相容於 Rime 官方提供的 [Plum](https://github.com/rime/plum) 管理工具，從而簡化安裝流程，同時也讓跨平台佈署更加方便。
-### MacOS or Linux
-目前已於 Ubuntu 18.04.1 和 MacOS Catalina 10.15.3 測試過
+## Installation
 
-安裝指令：
+As fcitx5 gaining popularity, especially in Wayland environment, I wrapped the plum
+package manager with little autodetection. Take a look on my
+[install script](https://github.com/hftsai256/rime-liur-lua/blob/master/tools/install.sh)
+before executing:
+
+```
+sh <(curl -fsSL https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/tools/install.sh) -h
+
+Install Liur-Lua on OpenXiami for RIME framework
+Usage: install.sh [-ih]
+
+Options
+  -i  Select IME frontend (supported options: fcitx5-rime, ibus-rime).
+      Will attempt to detect installed frontend if omitted.
+  -h  This message
+```
+
+If somehow the autodetection doesn't work, or you just want to install those files
+anyway, you could pass in a flag to tell it which platform you are running on:
+```
+sh <(curl -fsSL https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/tools/install.sh) -i fcitx5-rime
+```
+
+You may also run the plum package manager directly:
 ```
 $ git clone https://github.com/rime/plum.git && cd plum
 $ ./rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
 ```
 
-或是直接 pipe：
-```
-$ curl -fsSL https://git.io/rime-install | bash -s -- https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
-```
-
-若 Distribution 帶入的 `ibus-rime` 版本較舊而不支援 `__patch` 語法 (如 Ubuntu 18.04 LTS)，可參考源碼中提供的範本 `plum/package/hftsai256/rime-lua/default.custom.yaml` 會更簡單些。Ubuntu 20.04 LTS 會直接帶入 `ibus-rime v1.4.0-2` 版。
 
 目前版本保存了位於 `plum/package/hftsai256/rime-lua/tools` 內的管理工具 `config.sh`，執行 `$ ./config.sh -i` 將會安裝所有程式及設定檔。
 其它功能請參考 `-h` 說明提示：
@@ -62,17 +76,11 @@ Options
 ```
 
 ### Windows
-雖然 Plum 提供 Windows bat 腳本但並沒有支援 Recipe 語法。因此推荐預載 Git Bash for Windows 方能使 Plum 發揮全部的功力。
+I'm probably going to drop Windows support, because I have very little knowledge of 
+Windows, and fuck it, nobody is using it.
 
-* [Git for Windows](https://git-scm.com/download/win)
-* [Plum Windows Bootstrap](https://github.com/rime/plum-windows-bootstrap/archive/master.zip)
-
-安裝指令：
-```
-rime-install https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf
-```
-
-如果不想安裝 Git Bash for Windows，你仍然可以執行 `tools/Install.bat` 或是手動把輸入方案複製到 `%AppData%\Rime`。也別忘了安裝朙月拼音，大地拼音和注音輸入：
+如果不想安裝 Git Bash for Windows，你仍然可以執行 `tools/Install.bat` 或是手動把輸入方案複製到
+`%AppData%\Rime`。也別忘了安裝朙月拼音，大地拼音和注音輸入：
 ```
 rime-install luna-pinyin terra-pinyin bopomofo
 ```
