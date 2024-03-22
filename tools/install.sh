@@ -16,28 +16,47 @@ Options
 detect_im () {
         if which fcitx5 > /dev/null 2>&1; then
                 IM=fcitx5-rime
+                RIME_DIR=$HOME/.local/share/fcitx5/rime
                 if [ ! -f /usr/lib/fcitx5/librime.so ]; then
                         echo detected fcitx5 but cannot find fcitx5-rime module 1>&2
                         exit 1
                 fi
+
+        elif flatpak list | grep -q org.fcitx.Fcitx5.Addon.Rime > /dev/null 2>&1; then
+                IM=fcitx5-rime
+                RIME_DIR=$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime
+
         elif which ibus > /dev/null 2>&1; then
                 IM=ibus-rime
+                RIME_DIR=$HOME/.config/ibus/rime
                 if [ ! -f /usr/lib/ibus-rime/ibus-engine-rime ]; then
                         echo detected ibus but cannot find ibus-rime module 1>&2
                         exit 1
                 fi
+
         else
                 echo no IME frontend detected, install fcitx5-rime or ibus-rime 1>&2
                 exit 1
-        fi
 
-        echo $IM
+        fi
 }
 
 while getopts "i:h" arg; do
 	case "$arg" in
 		i)
-                        IM=$OPTARG
+                        case $OPTARG in
+                                fcitx5 | fcitx5-rime)
+                                        IM=fcitx5-rime
+                                        ;;
+                                ibux | ibus-rime)
+                                        IM=ibus-rime
+                                        ;;
+                                *)
+                                        echo Invalid frontend "$OPTARG"
+                                        echo available options: fcitx5, ibus
+                                        exit 1
+                                        ;;
+                        esac
 			;;
 		h)
 			echo "$HELP_MSG"
@@ -52,14 +71,19 @@ while getopts "i:h" arg; do
 done
 
 
+if [ -z "$IM" ]; then
+        detect_im
+fi
+
 IM=${IM:-$(detect_im)}
-echo Detected IM: "$IM"
+echo detected IM: "$IM"
+echo install path: "${RIME_DIR:-(default)}" 
 printf "%s" "proceed? (y/N) "
 read -r proceed
 
 case "$proceed" in
         y|Y)
-                curl -fsSL $PLUM_URL | rime_frontend=$IM bash -s -- $LIUR_CONF
+                curl -fsSL $PLUM_URL | rime_frontend=$IM rime_dir=$RIME_DIR bash -s -- $LIUR_CONF
                 ;;
         *)
                 exit 0
