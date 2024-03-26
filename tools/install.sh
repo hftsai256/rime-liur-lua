@@ -2,13 +2,15 @@
 PROGRAM="install.sh"
 PLUM_URL="https://raw.githubusercontent.com/rime/plum/master/rime-install"
 LIUR_CONF="https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur-lua-packages.conf"
+FCITX_BREEZE="https://arch.mirror.constant.com/extra/os/x86_64/fcitx5-breeze-2.0.0-2-any.pkg.tar.zst"
+TMPDIR="/tmp/liur"
 
 HELP_MSG="
 Install Liur-Lua on OpenXiami for RIME framework
 Usage: ${PROGRAM} [-ih]
 
 Options
-  -i  Select IME frontend (supported options: fcitx5-rime, ibus-rime).
+  -i  Select IME frontend (supported options: fcitx5, fcitx5-flatpak, ibus).
       Will attempt to detect installed frontend if omitted.
   -h  This message
 "
@@ -41,15 +43,41 @@ detect_im () {
         fi
 }
 
+install_breeze_theme () {
+        mkdir -p $TMPDIR
+        mkdir -p "$RIME_DIR"/../themes
+        curl -fsSL $FCITX_BREEZE | zstd -cd | tar -C $TMPDIR -xvf -
+        mv $TMPDIR/usr/share/fcitx5/themes/* "$RIME_DIR"/../themes
+}
+
+install_with_plum () {
+        mkdir -p $TMPDIR
+        cd $TMPDIR || {
+                echo cannot create temporary folder /tmp/liur >&2
+                exit 1
+        }
+        curl -fsSL $PLUM_URL | rime_frontend=$IM rime_dir=$RIME_DIR bash -s -- $LIUR_CONF
+}
+
+cleanup () {
+        rm -rf $TMPDIR
+}
+
 while getopts "i:h" arg; do
 	case "$arg" in
 		i)
                         case $OPTARG in
                                 fcitx5 | fcitx5-rime)
                                         IM=fcitx5-rime
+                                        RIME_DIR=$HOME/.local/share/fcitx5/rime
                                         ;;
-                                ibux | ibus-rime)
+                                fcitx5-flatpak)
+                                        IM=fcitx-rime
+                                        RIME_DIR=$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime
+                                        ;;
+                                ibus | ibus-rime)
                                         IM=ibus-rime
+                                        RIME_DIR=$HOME/.config/ibus/rime
                                         ;;
                                 *)
                                         echo Invalid frontend "$OPTARG"
@@ -83,7 +111,13 @@ read -r proceed
 
 case "$proceed" in
         y|Y)
-                curl -fsSL $PLUM_URL | rime_frontend=$IM rime_dir=$RIME_DIR bash -s -- $LIUR_CONF
+                install_with_plum
+
+                if [ "$IM" = "fcitx-rime" ]; then
+                        install_breeze_theme
+                fi
+
+                cleanup
                 ;;
         *)
                 exit 0
