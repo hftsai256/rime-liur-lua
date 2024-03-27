@@ -5,28 +5,36 @@ LIUR_CONF="https://raw.githubusercontent.com/hftsai256/rime-liur-lua/master/liur
 FCITX_BREEZE="https://arch.mirror.constant.com/extra/os/x86_64/fcitx5-breeze-2.0.0-2-any.pkg.tar.zst"
 TMPDIR="/tmp/liur"
 
-HELP_MSG="
+USAGE=$(cat <<EOF
 Install Liur-Lua on OpenXiami for RIME framework
-Usage: ${PROGRAM} [-ih]
+Usage:
+  ${PROGRAM} [options]
 
-Options
-  -i  Select IME frontend (supported options: fcitx5, fcitx5-flatpak, ibus).
+Options:
+  -i  Specify IME frontend (supported options: fcitx5, fcitx5-nix, fcitx5-flatpak, ibus).
       Will attempt to detect installed frontend if omitted.
   -h  This message
-"
+EOF
+)
 
 detect_im () {
         if which fcitx5 > /dev/null 2>&1; then
                 IM=fcitx5-rime
                 RIME_DIR=$HOME/.local/share/fcitx5/rime
-                if [ ! -f /usr/lib/fcitx5/librime.so ]; then
-                        echo detected fcitx5 but cannot find fcitx5-rime module 1>&2
+                if [ -f "$HOME"/.nix-profile/lib/fcitx5/librime.so ]; then
+                        echo librime detected in nix profile
+                        INSTALL_FCITX5_EXTRA=1
+                elif [ -f /usr/lib/fcitx5/librime.so ]; then
+                        echo librime detected in FHS
+                else
+                        echo cannot detect librime.so
                         exit 1
                 fi
 
         elif flatpak list | grep -q org.fcitx.Fcitx5.Addon.Rime > /dev/null 2>&1; then
                 IM=fcitx5-rime
                 RIME_DIR=$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime
+                INSTALL_FCITX5_EXTRA=1
 
         elif which ibus > /dev/null 2>&1; then
                 IM=ibus-rime
@@ -50,6 +58,50 @@ install_breeze_theme () {
         mv $TMPDIR/usr/share/fcitx5/themes/* "$RIME_DIR"/../themes
 }
 
+install_fcitx5_systemd () {
+        service_dir=$HOME/.config/systemd/user
+        service_file=fcitx5.service
+
+        echo install $service_file to "$service_dir"
+        mkdir -p ~/.config/systemd/user
+        cat <<EOF > "$service_dir"/$service_file 
+[Unit]
+Description=Flexible Input Method Framework
+Conflicts=ibus.service
+
+[Service]
+ExecStart=sleep 5; if ! pgrep ibus; then flatpak run org.fcitx.Fcitx5 -D; fi
+Environment=GTK_IM_MODULE=fcitx XMODIFIERS="@im=fcitx" QT_IM_MODULE=fcitx GLFW_IM_MODULE="ibus"
+
+[Install]
+Alias=input-method.service
+WantedBy=graphical-session.target
+EOF
+        systemctl --user enable --now fcitx5.service
+}
+
+install_fcitx5_extra () {
+        printf "%s" "install KDE breeze theme? (y/N) "
+        read -r install_theme
+        case "$install_theme" in
+                y | Y)
+                        install_breeze_theme
+                        ;;
+                *)
+                        ;;
+        esac
+
+        printf "%s" "install user systemd service? (y/N) "
+        read -r install_systemd
+        case "$install_systemd" in
+                y | Y)
+                        install_fcitx5_systemd
+                        ;;
+                *)
+                        ;;
+        esac
+}
+
 install_with_plum () {
         mkdir -p $TMPDIR
         cd $TMPDIR || {
@@ -67,32 +119,38 @@ while getopts "i:h" arg; do
 	case "$arg" in
 		i)
                         case $OPTARG in
-                                fcitx5 | fcitx5-rime)
+                                fcitx5)
                                         IM=fcitx5-rime
                                         RIME_DIR=$HOME/.local/share/fcitx5/rime
                                         ;;
-                                fcitx5-flatpak)
-                                        IM=fcitx-rime
-                                        RIME_DIR=$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime
+                                fcitx5-nix)
+                                        IM=fcitx5-rime
+                                        RIME_DIR=$HOME/.local/share/fcitx5/rime
+                                        INSTALL_FCITX5_EXTRA=1
                                         ;;
-                                ibus | ibus-rime)
+                                fcitx5-flatpak)
+                                        IM=fcitx5-rime
+                                        RIME_DIR=$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime
+                                        INSTALL_FCITX5_EXTRA=1
+                                        ;;
+                                ibus)
                                         IM=ibus-rime
                                         RIME_DIR=$HOME/.config/ibus/rime
                                         ;;
                                 *)
                                         echo Invalid frontend "$OPTARG"
-                                        echo available options: fcitx5, ibus
+                                        echo available options: fcitx5, fcitx5-flatpak, ibus
                                         exit 1
                                         ;;
                         esac
 			;;
 		h)
-			echo "$HELP_MSG"
+			echo "$USAGE"
 			exit 1
 			;;
 		*)
 			echo "Unknown flag $1"
-			echo "$HELP_MSG"
+			echo "$USAGE"
 			shift
 			;;
 	esac
@@ -104,19 +162,19 @@ if [ -z "$IM" ]; then
 fi
 
 IM=${IM:-$(detect_im)}
-echo detected IM: "$IM"
+echo target IM frontend: "$IM"
 echo install path: "${RIME_DIR:-(default)}" 
+echo ask for fcitx5 extras: "$([ "$INSTALL_FCITX5_EXTRA" = 1 ] && echo yes || echo no)"
 printf "%s" "proceed? (y/N) "
-read -r proceed
 
+read -r proceed
 case "$proceed" in
         y|Y)
                 install_with_plum
 
-                if [ "$IM" = "fcitx-rime" ]; then
-                        install_breeze_theme
+                if [ "$INSTALL_FCITX5_EXTRA" -ne 0 ]; then
+                        install_fcitx5_extra
                 fi
-
                 cleanup
                 ;;
         *)
