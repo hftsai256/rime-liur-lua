@@ -23,7 +23,7 @@ detect_im () {
                 RIME_DIR=$HOME/.local/share/fcitx5/rime
                 if [ -f "$HOME"/.nix-profile/lib/fcitx5/librime.so ]; then
                         echo librime detected in nix profile
-                        INSTALL_FCITX5_EXTRA=1
+                        ASK_FCITX5_THEME=1
                 elif [ -f /usr/lib/fcitx5/librime.so ]; then
                         echo librime detected in FHS
                 else
@@ -34,7 +34,8 @@ detect_im () {
         elif flatpak list | grep -q org.fcitx.Fcitx5.Addon.Rime > /dev/null 2>&1; then
                 IM=fcitx5-rime
                 RIME_DIR=$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime
-                INSTALL_FCITX5_EXTRA=1
+                ASK_FCITX5_THEME=1
+                ASK_FCITX5_FLATPAK_SYSTEMD=1
 
         elif which ibus > /dev/null 2>&1; then
                 IM=ibus-rime
@@ -61,6 +62,7 @@ install_breeze_theme () {
 install_fcitx5_systemd () {
         service_dir=$HOME/.config/systemd/user
         service_file=fcitx5.service
+        timer_file=fcitx5.timer
 
         echo install $service_file to "$service_dir"
         mkdir -p ~/.config/systemd/user
@@ -70,36 +72,35 @@ Description=Flexible Input Method Framework
 Conflicts=ibus.service
 
 [Service]
-ExecStart=sleep 5; if ! pgrep ibus; then flatpak run org.fcitx.Fcitx5 -D; fi
+ExecCondition=sh -c '! pgrep ibus'
+ExecStart=flatpak run org.fcitx.Fcitx5
 Environment=GTK_IM_MODULE=fcitx XMODIFIERS="@im=fcitx" QT_IM_MODULE=fcitx GLFW_IM_MODULE="ibus"
 
 [Install]
 Alias=input-method.service
-WantedBy=graphical-session.target
 EOF
-        systemctl --user enable --now fcitx5.service
-}
 
-install_fcitx5_extra () {
-        printf "%s" "install KDE breeze theme? (y/N) "
-        read -r install_theme
-        case "$install_theme" in
-                y | Y)
-                        install_breeze_theme
-                        ;;
-                *)
-                        ;;
-        esac
+        cat <<EOF > "$service_dir"/$timer_file
+[Unit]
+Description=timer for fcitx5 service
 
-        printf "%s" "install user systemd service? (y/N) "
-        read -r install_systemd
-        case "$install_systemd" in
-                y | Y)
-                        install_fcitx5_systemd
-                        ;;
-                *)
-                        ;;
-        esac
+[Timer]
+OnStartupSec=10sec
+
+[Install]
+WantedBy=graphical-session.target timers.target
+EOF
+
+        cat <<EOF
+enabling fcitx5.timer, which will wait 30 seconds after graphical session is loaded,
+and trigger flatpak fcitx5 if ibus is not detected.
+
+to remove the installed systemd services, run:
+$ systemctl --user disable fcitx5.timer
+and remove both fcitx5.timer and fcitx5.service under $service_dir 
+EOF
+
+        systemctl --user enable --now fcitx5.timer
 }
 
 install_with_plum () {
@@ -126,12 +127,13 @@ while getopts "i:h" arg; do
                                 fcitx5-nix)
                                         IM=fcitx5-rime
                                         RIME_DIR=$HOME/.local/share/fcitx5/rime
-                                        INSTALL_FCITX5_EXTRA=1
+                                        ASK_FCITX5_THEME=1
                                         ;;
                                 fcitx5-flatpak)
                                         IM=fcitx5-rime
                                         RIME_DIR=$HOME/.var/app/org.fcitx.Fcitx5/data/fcitx5/rime
-                                        INSTALL_FCITX5_EXTRA=1
+                                        ASK_FCITX5_THEME=1
+                                        ASK_FCITX5_FLATPAK_SYSTEMD=1
                                         ;;
                                 ibus)
                                         IM=ibus-rime
@@ -164,7 +166,8 @@ fi
 IM=${IM:-$(detect_im)}
 echo target IM frontend: "$IM"
 echo install path: "${RIME_DIR:-(default)}" 
-echo ask for fcitx5 extras: "$([ "$INSTALL_FCITX5_EXTRA" = 1 ] && echo yes || echo no)"
+echo ask for fcitx5 theme: "$([ "$ASK_FCITX5_THEME" -ne 0 ] && echo yes || echo no)"
+echo ask for fcitx5 systemd service: "$([ "$ASK_FCITX5_FLATPAK_SYSTEMD" -ne 0 ] && echo yes || echo no)"
 printf "%s" "proceed? (y/N) "
 
 read -r proceed
@@ -172,8 +175,28 @@ case "$proceed" in
         y|Y)
                 install_with_plum
 
-                if [ "$INSTALL_FCITX5_EXTRA" -ne 0 ]; then
-                        install_fcitx5_extra
+                if [ "$ASK_FCITX5_THEME" -ne 0 ]; then
+                        printf "%s" "install KDE breeze theme? (y/N) "
+                        read -r install_theme
+                        case "$install_theme" in
+                                y | Y)
+                                        install_breeze_theme
+                                        ;;
+                                *)
+                                        ;;
+                        esac
+                fi
+
+                if [ "$ASK_FCITX5_FLATPAK_SYSTEMD" -ne 0 ]; then
+                        printf "%s" "install user systemd service? (y/N) "
+                        read -r install_systemd
+                        case "$install_systemd" in
+                                y | Y)
+                                        install_fcitx5_systemd
+                                        ;;
+                                *)
+                                        ;;
+                        esac
                 fi
                 cleanup
                 ;;
