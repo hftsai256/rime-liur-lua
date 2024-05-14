@@ -166,8 +166,8 @@ fi
 IM=${IM:-$(detect_im)}
 echo target IM frontend: "$IM"
 echo install path: "${RIME_DIR:-(default)}" 
-echo ask for fcitx5 theme: "$([ "$ASK_FCITX5_THEME" -ne 0 ] && echo yes || echo no)"
-echo ask for fcitx5 systemd service: "$([ "$ASK_FCITX5_FLATPAK_SYSTEMD" -ne 0 ] && echo yes || echo no)"
+echo ask for fcitx5 theme: "$([ "$ASK_FCITX5_THEME" = 1 ] && echo yes || echo no)"
+echo ask for fcitx5 systemd service: "$([ "$ASK_FCITX5_FLATPAK_SYSTEMD" = 1 ] && echo yes || echo no)"
 printf "%s" "proceed? (y/N) "
 
 read -r proceed
@@ -175,7 +175,7 @@ case "$proceed" in
         y|Y)
                 install_with_plum
 
-                if [ "$ASK_FCITX5_THEME" -ne 0 ]; then
+                if [ "$ASK_FCITX5_THEME" = 1 ]; then
                         printf "%s" "install KDE breeze theme? (y/N) "
                         read -r install_theme
                         case "$install_theme" in
@@ -187,7 +187,7 @@ case "$proceed" in
                         esac
                 fi
 
-                if [ "$ASK_FCITX5_FLATPAK_SYSTEMD" -ne 0 ]; then
+                if [ "$ASK_FCITX5_FLATPAK_SYSTEMD" = 1 ]; then
                         printf "%s" "install user systemd service? (y/N) "
                         read -r install_systemd
                         case "$install_systemd" in
