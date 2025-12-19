@@ -91,6 +91,9 @@ zh_tw:	#只針對拼音及注音反查進行台灣用語轉換
 simplifier:
   tips: all	# 簡化字模式下提示對應的傳統漢字
 
+menu: #重碼選擇鍵，如沒有寫-預設 ctrl+123456789\
+  alternative_select_keys: "0123456789"
+
 speller:
   alphabet: "abcdefghijklmnopqrstuvwxyz[];',."
   delimiter: "`"
